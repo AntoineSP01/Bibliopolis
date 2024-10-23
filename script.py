@@ -3,11 +3,11 @@ from word2number import w2n
 
 import requests, csv, re
 
-url = "https://books.toscrape.com/catalogue/soumission_998/index.html"
+url = "https://books.toscrape.com/catalogue/glory-over-everything-beyond-the-kitchen-house_696/index.html"
 response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+soup = BeautifulSoup(response.content, 'html.parser')
 
-with open('Python_Scrapping/information.csv', 'w', newline='', encoding='utf8') as fichier_csv:
+with open('Python_Scrapping/part1.csv', 'w', newline='', encoding='utf8') as fichier_csv:
     writter = csv.writer(fichier_csv)
     writter.writerow(['product_page_url', 'universal_product_code ', 'title', 'price_including_tax', 'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating', 'image_url'])
     titre = soup.find('h1').text
@@ -22,8 +22,6 @@ with open('Python_Scrapping/information.csv', 'w', newline='', encoding='utf8') 
     review_rating = w2n.word_to_num(review_rating_text)
 
     image_url = soup.find('img')['src'].replace('../..', 'https://books.toscrape.com') 
-
-    print(titre, product_descritpion, category, review_rating, image_url)
 
     balise_table = soup.find('table')
     balise_tr = balise_table.find_all('tr')
