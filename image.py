@@ -1,7 +1,18 @@
 from bs4 import BeautifulSoup
 from word2number import w2n
 
-import requests, csv, re   
+import requests, csv, re, os  
+
+def download_image(img_url, titre) :
+    try :
+        response = requests.get(img_url)
+        print(img_url)
+        titre = titre.replace(" ", "_").replace("?", "").replace("*", "")
+        with open(f'images/{titre}.jpg', 'wb') as file:
+            file.write(response.content)
+    except Exception as e:
+        print(f"Erreur lors de la récupération de l'image: {e}")
+
 
 def scrap_livre(url):
     try :
@@ -20,7 +31,7 @@ def scrap_livre(url):
         review_rating = w2n.word_to_num(review_rating_text)
 
         image_url = soup.find('img')['src'].replace('../..', 'https://books.toscrape.com') 
-
+        download_image(image_url, titre)
 
         balise_table = soup.find('table')
         balise_tr = balise_table.find_all('tr')
@@ -49,18 +60,25 @@ def scrap_livre(url):
         print(f"Erreur : {e}")
     
 
+
 with open('part2.csv', 'w', newline='', encoding='utf8') as fichier_csv:
     writter = csv.writer(fichier_csv)
     writter.writerow(['product_page_url', 'universal_product_code ', 'title', 'price_including_tax', 'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating', 'image_url'])
 
     n = 15
 
+    if not os.path.exists('images'):
+        os.makedirs('images')
+    else:
+        for file in os.listdir('images'):
+            os.remove(f'images/{file}')
+
     url_main = "https://books.toscrape.com/"
     response = requests.get(url_main)
     soup = BeautifulSoup(response.content, 'html.parser')
 
     categories = soup.find_all('ul', class_='nav nav-list')
-    link = categories[0].find_all('a')[28]['href']  
+    link = categories[0].find_all('a')[29]['href']  
     url_category = link.replace("/index.html", "").replace("catalogue/category/books/", "")
     
     for i in range(1, n):
